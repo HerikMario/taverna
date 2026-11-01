@@ -1,6 +1,6 @@
 package personagem.conjurador;
 
-import items.Arma;
+import itens.Arma;
 import combate.Dano;
 
 public class Mago extends Conjurador{

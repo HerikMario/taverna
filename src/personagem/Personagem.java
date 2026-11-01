@@ -1,7 +1,8 @@
 package personagem;
 
-import items.Arma;
+import itens.Arma;
 import combate.Dano;
+import combate.ResultadoAcerto;
 import util.Dados;
 
 public abstract class Personagem {
@@ -31,8 +32,8 @@ public abstract class Personagem {
         this.agilidade = validarAtributo("Agilidade", agilidade);
         this.intelecto = validarAtributo("Intelecto", intelecto);
         this.arma = arma;
-        this.vidaAtual = calcularVidaMaxima();
         this.vidaMaxima = calcularVidaMaxima();
+        this.vidaAtual = this.vidaMaxima;
         this.defesa = calcularDefesa();
     }
 
@@ -43,15 +44,9 @@ public abstract class Personagem {
     //Métodos Abstratos
     public abstract int atacar(Personagem alvo);
 
+    protected abstract int getAtributoPrincipal();
+
     //Métodos Públicos
-    public int calcularVidaMaxima() {
-        return VALOR_BASE_VIDA + (forca * 2);
-    }
-
-    public int calcularDefesa() {
-        return VALOR_BASE_DEFESA + agilidade;
-    }
-
     public int rolarIniciativa() {
         return Dados.rolar(1, 20) + getAgilidade();
     }
@@ -61,6 +56,7 @@ public abstract class Personagem {
             throw new IllegalArgumentException("O dano não pode ser negativo");
         }
         vidaAtual -= dano;
+        // A vida trava em 0: o personagem não fica com vida negativa.
         if (vidaAtual <= 0) {
             vidaAtual = 0;
         }
@@ -70,11 +66,11 @@ public abstract class Personagem {
         if (pontosDeCura < 0) {
             throw new IllegalArgumentException("Os pontos de cura não podem ser negativos");
         }
+        // Personagem morto não pode ser curado.
         if (!estaVivo()) {
             throw new IllegalStateException("Não se pode curar um personagem morto");
         }
         vidaAtual += pontosDeCura;
-        int vidaMaxima = calcularVidaMaxima();
         if (vidaAtual > vidaMaxima) {
             vidaAtual = vidaMaxima;
         }
@@ -84,10 +80,38 @@ public abstract class Personagem {
         return vidaAtual > 0;
     }
 
+    //Métodos Protegidos
+    protected int getMargemCritico() {
+        return 20;
+    }
+
+    // Rola 1d20 e guarda o valor natural. Se o natural alcançar a margem de crítico, é crítico (sempre acerta).
+    // Caso contrário, acerta se o natural + atributo principal for maior ou igual à defesa do alvo.
+    protected ResultadoAcerto testarAcerto(Personagem alvo) {
+        int d20Natural = Dados.rolarDado(20);
+        if (d20Natural >= getMargemCritico()) {
+            return ResultadoAcerto.CRITICO;
+        }
+        int total = d20Natural + getAtributoPrincipal();
+        if (total >= alvo.getDefesa()) {
+            return ResultadoAcerto.ACERTO;
+        }
+        return ResultadoAcerto.ERRO;
+    }
+
     //Métodos Privados
+    private int calcularVidaMaxima() {
+        return VALOR_BASE_VIDA + (forca * 2);
+    }
+
+    private int calcularDefesa() {
+        return VALOR_BASE_DEFESA + agilidade;
+    }
+
     private int validarAtributo(String nomeDoAtributo, int atributo) {
         if (atributo < ATRIBUTO_MINIMO || atributo > ATRIBUTO_MAXIMO) {
-            throw new IllegalArgumentException(String.format("O atributo %s precisa estar entre 1 e 10", nomeDoAtributo));
+            throw new IllegalArgumentException(String.format("O atributo %s precisa estar entre %d e %d, recebido: %d",
+                    nomeDoAtributo, ATRIBUTO_MINIMO, ATRIBUTO_MAXIMO, atributo));
         }
         return atributo;
     }

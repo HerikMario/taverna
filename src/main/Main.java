@@ -2,31 +2,31 @@ package main;
 
 import personagem.Personagem;
 import personagem.combatente.Guerreiro;
-import personagem.conjurador.Mago;
+import personagem.combatente.Ladino;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("Bem-vindo à Taverna!");
 
-        Personagem gandalf = new Mago("Gandalf", 3, 5, 10);
+        Personagem lyra = new Ladino("Lyra", 3, 10, 5);
         Personagem kriv = new Guerreiro("Kriv", 10, 4, 4);
 
         int iniciativaKriv;
-        int iniciativaGandalf;
+        int iniciativaLyra;
         do {
             iniciativaKriv = kriv.rolarIniciativa();
-            iniciativaGandalf = gandalf.rolarIniciativa();
+            iniciativaLyra = lyra.rolarIniciativa();
             System.out.printf("Iniciativa: %s tirou %d, %s tirou %d%n",
-                    kriv.getNome(), iniciativaKriv, gandalf.getNome(), iniciativaGandalf);
-        } while (iniciativaKriv == iniciativaGandalf);
+                    kriv.getNome(), iniciativaKriv, lyra.getNome(), iniciativaLyra);
+        } while (iniciativaKriv == iniciativaLyra);
 
         Personagem atacante;
         Personagem defensor;
-        if (iniciativaKriv > iniciativaGandalf) {
+        if (iniciativaKriv > iniciativaLyra) {
             atacante = kriv;
-            defensor = gandalf;
+            defensor = lyra;
         } else {
-            atacante = gandalf;
+            atacante = lyra;
             defensor = kriv;
         }
         System.out.printf("%s começa!%n%n", atacante.getNome());

@@ -1,8 +1,8 @@
 package personagem.combatente;
 
-import items.Arma;
+import combate.ResultadoAcerto;
+import itens.Arma;
 import personagem.Personagem;
-import util.Dados;
 
 public abstract class Combatente extends Personagem {
     //Construtores
@@ -13,9 +13,17 @@ public abstract class Combatente extends Personagem {
     //Métodos Públicos
     @Override
     public int atacar(Personagem alvo) {
-        if ((Dados.rolar(1, 20) +  < alvo.getDefesa()) || !estaVivo()){
+        if (!estaVivo()) {
             return 0;
         }
-        return Dados.rolar(getArma().getDano().getQuantidade(), getArma().getDano().getLados()) + getArma().getDano().getModificador();
+        ResultadoAcerto resultado = testarAcerto(alvo);
+        if (resultado == ResultadoAcerto.ERRO) {
+            return 0;
+        }
+        int dano = getArma().getDano().rolar();
+        if (resultado == ResultadoAcerto.CRITICO) {
+            dano *= 2;
+        }
+        return dano;
     }
 }

@@ -1,4 +1,4 @@
-package items;
+package itens;
 
 public abstract class Item {
     //Atributos
@@ -11,20 +11,12 @@ public abstract class Item {
         this.categoria = categoria;
     }
 
-    //Gettes e Setters
+    //Getters
     public String getNome() {
         return nome;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
     public String getCategoria() {
         return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
     }
 }

@@ -1,10 +1,16 @@
 package personagem.conjurador;
 
-import items.Arma;
+import combate.ResultadoAcerto;
+import itens.Arma;
 import personagem.Personagem;
 import util.Dados;
 
-public class Conjurador extends Personagem {
+public abstract class Conjurador extends Personagem {
+    //Constantes
+    public static final int CUSTO_MAGIA = 5;
+    public static final int MANA_BASE = 10;
+    public static final int MULTIPLICADOR_INTELECTO_MANA = 2;
+
     //Atributos
     private int mana;
 
@@ -17,19 +23,37 @@ public class Conjurador extends Personagem {
     //Métodos Públicos
     @Override
     public int atacar(Personagem alvo){
-        if ((Dados.rolar(1, 20) < alvo.getDefesa()) || !estaVivo()){
+        if (!estaVivo()) {
             return 0;
         }
-        if (this.mana < 5) {
-            return Dados.rolar(getArma().getDano().getQuantidade(), getArma().getDano().getLados()) + getArma().getDano().getModificador();
+        // Decisão de regra: o teste de acerto vem antes da escolha entre magia e arma,
+        // então a mana só é gasta quando o ataque acerta. Um erro não consome mana.
+        ResultadoAcerto resultado = testarAcerto(alvo);
+        if (resultado == ResultadoAcerto.ERRO) {
+            return 0;
         }
-        this.mana -= 5;
-        return Dados.rolar(1, 10) + getIntelecto()/2;
+        int dano;
+        if (this.mana < CUSTO_MAGIA) {
+            dano = getArma().getDano().rolar();
+        } else {
+            this.mana -= CUSTO_MAGIA;
+            dano = Dados.rolar(1, 10) + getIntelecto()/2;
+        }
+        if (resultado == ResultadoAcerto.CRITICO) {
+            dano *= 2;
+        }
+        return dano;
     }
 
-    //Métodos Privados
     public int calcularMana(){
-        return 10 + (getIntelecto() * 2);
+        return MANA_BASE + (getIntelecto() * MULTIPLICADOR_INTELECTO_MANA);
+    }
+
+    //Métodos Protegidos
+    // Conjuradores usam o Intelecto no teste de acerto, inclusive quando atacam com a arma.
+    @Override
+    protected int getAtributoPrincipal() {
+        return getIntelecto();
     }
 
     //Getters e Setters

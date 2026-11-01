@@ -1,4 +1,4 @@
-package items;
+package itens;
 
 import combate.Dano;
 
@@ -12,12 +12,8 @@ public class Arma extends Item{
         this.dano = dano;
     }
 
-    //Getters e Setters
+    //Getters
     public Dano getDano() {
         return dano;
-    }
-
-    public void setDano(Dano dano) {
-        this.dano = dano;
     }
 }
